@@ -5,31 +5,31 @@ class SegmentTree:
 
     def __init__(self, array: List[int]) -> None:
         n = len(array)
-        self.lb = 0
-        self.rb = n-1
+        self.tree_l = 0
+        self.tree_r = n-1
         self._tree: List[int] = [0 for i in range(4 * n + 2)]
-        if self.rb >= 0:
-            self._build(array, 1, self.lb, self.rb)
+        if self.tree_r >= 0:
+            self._build(array, 1, self.tree_l, self.tree_r)
 
-
-    def sum(self, l: int, r: int, ti: int = 1, lb: Optional[int] = None, rb: Optional[int] = None) -> int:
-        if lb is None:
-            lb = self.lb
-        if rb is None:
-            rb = self.rb
-        if l == lb and r == rb:
-            return self._tree[ti]
-        elif  l <= lb and r >= rb:
-            return self._tree[ti]
+    def sum(self,
+            sum_lb: int, sum_rb: int, tree_index: int = 1,
+            seg_lb: Optional[int] = None, seg_rb: Optional[int] = None) -> int:
+        if seg_lb is None:
+            seg_lb = self.tree_l
+        if seg_rb is None:
+            seg_rb = self.tree_r
+        if sum_lb == seg_lb and sum_rb == seg_rb:
+            return self._tree[tree_index]
+        elif sum_lb <= seg_lb and sum_rb >= seg_rb:
+            return self._tree[tree_index]
         else:
             left, right = 0, 0
-            midpoint = self._midpoint(lb, rb)
-            if self._overlap(l, r, lb, midpoint):
-                left = self.sum(l, r, self._lchild(ti), lb=lb, rb=midpoint)
-            if self._overlap(l, r, midpoint+1, rb):
-                right = self.sum(l, r, self._rchild(ti), lb=midpoint+1, rb=rb)
+            midpoint = self._midpoint(seg_lb, seg_rb)
+            if self._overlap(sum_lb, sum_rb, seg_lb, midpoint):
+                left = self.sum(sum_lb, sum_rb, self._lchild(tree_index), seg_lb=seg_lb, seg_rb=midpoint)
+            if self._overlap(sum_lb, sum_rb, midpoint+1, seg_rb):
+                right = self.sum(sum_lb, sum_rb, self._rchild(tree_index), seg_lb=midpoint+1, seg_rb=seg_rb)
             return left + right
-
 
     def _overlap(self, l1: int, r1: int, l2: int, r2: int):
         if r2 > r1:
@@ -55,13 +55,8 @@ class SegmentTree:
     def _parent(self, i: int) -> int:
         return i // 2
 
-
     def _lchild(self, i: int) -> int:
         return 2 * i
 
-
     def _rchild(self, i: int) -> int:
         return 2 * i + 1
-
-t = SegmentTree([2])
-t.sum(0,2)
